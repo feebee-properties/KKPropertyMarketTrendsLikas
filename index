@@ -1,0 +1,519 @@
+import React, { useState, useEffect } from 'react';
+import { Home, DollarSign, Eye, Building, MapPin, CheckCircle, BarChart, Phone, Mail, Facebook, Sparkles } from 'lucide-react';
+
+// Main App Component
+const App = () => {
+  // State for managing the generated description modal
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+  const [generatedDescription, setGeneratedDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Define the project details and data for the infographic
+  const project = {
+    title: "Where the City Begins",
+    tagline: "Likas Bay's New Landmark",
+    heroImage: "https://placehold.co/1200x600/0A2342/FFFFFF?text=The+V+by+Jesselton+-+Likas+Bay", // Placeholder, ideally use the provided image URL
+    overview: {
+      acres: "10-acre",
+      developmentType: "Integrated Development (Suites | Offices | Retail)",
+      coastalWalkway: "Direct Access to Sabah’s Iconic 7km Coastal Walkway",
+      location: "Prime Seafront Location at Likas Bay",
+      priceRange: "From RM304,000 | RM650 psf", // Updated price
+    },
+    sellingPoints: [
+      {
+        icon: DollarSign,
+        title: "Unlock High Rental Yields",
+        description: "Generate RM2,000+ Monthly Rental Income! Our professional Airbnb Management Team ensures hassle-free income.",
+      },
+      {
+        icon: Eye,
+        title: "Unobstructed Panoramas Forever",
+        description: "Enjoy permanent, breathtaking sea views – unlike SICC, The V's strategic positioning ensures no future 'sea bedding' obstructions. Even non-sea view units offer pleasant courtyard views, mirroring high occupancy rates seen in similar developments.",
+      },
+      {
+        icon: Building,
+        title: "Commercial Advantage (Airbnb Ready)",
+        description: "As a commercial title, The V offers full flexibility for lucrative short-term rentals, capitalizing on Kota Kinabalu's booming tourism.",
+      },
+      {
+        icon: MapPin,
+        title: "Integrated Lifestyle & Convenience",
+        description: "Live, Work, Play – All in one address. Experience the ultimate convenience with direct access to offices, diverse retail, and the vibrant Coastal Walkway – creating a dynamic community at your doorstep.",
+      },
+      {
+        icon: CheckCircle,
+        title: "Move-In Ready & Value Added",
+        description: "Each unit includes air conditioning, water heater, and kitchen cabinets – minimizing upfront costs and maximizing immediate enjoyment or rental readiness.",
+      },
+    ],
+    comparison: [
+      {
+        criteria: "Size (sqft)",
+        theV: "425 - 1090",
+        jesseltonQuay: "522",
+        theShore: "409",
+        suteraAvenue: "726",
+      },
+      {
+        criteria: "Price (RM)",
+        theV: "From RM304,000 (RM650 psf)", // Updated price
+        jesseltonQuay: "RM630k",
+        theShore: "RM520k",
+        suteraAvenue: "RM600k",
+      },
+      {
+        criteria: "Status",
+        theV: "New Launch (Future-proof Design)",
+        jesseltonQuay: "Completed",
+        theShore: "Under Construction",
+        suteraAvenue: "Under Construction",
+      },
+      {
+        criteria: "Key Differentiator",
+        theV: "Direct Coastal Walk Access, Dedicated Airbnb Mgt, Unobstructed Sea Views, Integrated Development",
+        jesseltonQuay: "Iconic Waterfront, High Occupancy",
+        theShore: "Central Location, Retail Component",
+        suteraAvenue: "Modern Design, Good Accessibility",
+      },
+      {
+        criteria: "Airbnb Rate (RM)",
+        theV: "Projected RM250-320/day (avg.)",
+        jesseltonQuay: "RM400-500/day",
+        theShore: "RM280/day",
+        suteraAvenue: "RM260-280/day",
+      },
+    ],
+    financials: [
+      {
+        unitType: "Studio",
+        size: 425,
+        estSellingPrice: 304000,
+        loan80Percent: 243200,
+        monthlyLoanRepayment: 1230,
+        monthlyMaintenance: 127.50,
+        totalMonthlyOutgoings: 1357.50,
+        // Airbnb specific
+        avgDailyAirbnbRate: 250,
+        projectedNetMonthlyAirbnbRental: 4200,
+        estimatedPositiveAirbnbCashFlow: 4200 - 1357.50,
+        // Traditional rental specific (assuming no significant management fee for simplicity)
+        projectedMonthlyTraditionalRental: 1300,
+        estimatedPositiveTraditionalCashFlow: 1300 - 1357.50,
+      },
+      {
+        unitType: "1-Bedroom",
+        size: 500,
+        estSellingPrice: 325000,
+        loan80Percent: 260000,
+        monthlyLoanRepayment: 1317,
+        monthlyMaintenance: 150,
+        totalMonthlyOutgoings: 1467,
+        // Airbnb specific
+        avgDailyAirbnbRate: 320,
+        projectedNetMonthlyAirbnbRental: 5376,
+        estimatedPositiveAirbnbCashFlow: 5376 - 1467,
+        // Traditional rental specific (assuming no significant management fee for simplicity)
+        projectedMonthlyTraditionalRental: 2000,
+        estimatedPositiveTraditionalCashFlow: 2000 - 1467,
+      },
+    ],
+    contact: {
+      name: "Phoebe Property Listing",
+      phone: "+60 11-1338 7178",
+      email: "derekyfs@hotmail.com",
+      facebook: "https://www.facebook.com/aforcerealty2u/?locale=ms_MY",
+    }
+  };
+
+  // Function to get image URL from uploaded files
+  const getImageUrl = (fileName) => {
+    // Replace with actual logic to fetch image from uploaded files if available
+    // For now, using placeholders or direct URLs if provided in the prompt
+    if (fileName === "WhatsApp Image 2025-07-09 at 12.16.58_020e13fc.jpg") {
+      return "https://placehold.co/1200x600/0A2342/FFFFFF?text=The+V+by+Jesselton+-+Likas+Bay"; // Placeholder for hero image
+    } else if (fileName === "WhatsApp Image 2025-07-11 at 17.33.40_e5badb7e.jpg") {
+      return "https://placehold.co/800x400/0A2342/FFFFFF?text=Modern+Interiors+and+Amenities"; // Placeholder for amenities
+    }
+    return `https://placehold.co/600x400/cccccc/000000?text=${fileName}`; // Generic placeholder
+  };
+
+  // Function to generate property description using Gemini API
+  const generatePropertyDescription = async () => {
+    setIsLoading(true);
+    setGeneratedDescription('');
+    try {
+      let chatHistory = [];
+      const prompt = `Generate a compelling and concise property listing description for 'The V by Jesselton'. Focus on its key features, investment potential (Airbnb and traditional rental), and lifestyle benefits.
+        Project Details:
+        Title: ${project.title}
+        Tagline: ${project.tagline}
+        Location: ${project.overview.location}
+        Development Type: ${project.overview.developmentType} on ${project.overview.acres}
+        Key Selling Points:
+        - ${project.sellingPoints[0].title}: ${project.sellingPoints[0].description}
+        - ${project.sellingPoints[1].title}: ${project.sellingPoints[1].description}
+        - ${project.sellingPoints[2].title}: ${project.sellingPoints[2].description}
+        - ${project.sellingPoints[3].title}: ${project.sellingPoints[3].description}
+        - ${project.sellingPoints[4].title}: ${project.sellingPoints[4].description}
+        Unit Types:
+        - 425sqft studio
+        - 500sqft 1 bedroom 1 bathroom
+        - 624sqft 1 bedroom 1 bathroom (with balcony)
+        - 800sqft 2bedroom 2bathroom
+        - 1090sqft 2bedroom 2bathroom (with balcony)
+        Included: Aircon, water heater, Kitchen cabinets
+        Emphasize the luxury, convenience, and strong rental income possibilities. Keep it under 200 words.`;
+
+      chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+      const payload = { contents: chatHistory };
+      const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+
+      if (result.candidates && result.candidates.length > 0 &&
+          result.candidates[0].content && result.candidates[0].content.parts &&
+          result.candidates[0].content.parts.length > 0) {
+        const text = result.candidates[0].content.parts[0].text;
+        setGeneratedDescription(text);
+      } else {
+        setGeneratedDescription("Failed to generate description. Please try again.");
+        console.error("Gemini API response structure unexpected:", result);
+      }
+    } catch (error) {
+      setGeneratedDescription("An error occurred while generating the description.");
+      console.error("Error calling Gemini API:", error);
+    } finally {
+      setIsLoading(false);
+      setShowDescriptionModal(true);
+    }
+  };
+
+  return (
+    <div className="font-inter bg-gradient-to-br from-cyan-50 to-teal-100 text-gray-800 min-h-screen">
+      {/* Tailwind CSS CDN */}
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+      {/* Hero Section */}
+      <section className="relative h-96 md:h-[500px] lg:h-[600px] overflow-hidden rounded-b-3xl shadow-lg">
+        <img
+          src={getImageUrl("WhatsApp Image 2025-07-09 at 12.16.58_020e13fc.jpg")}
+          alt="The V by Jesselton - Likas Bay"
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/1200x600/0A2342/FFFFFF?text=The+V+by+Jesselton+-+Likas+Bay"; }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-teal-900 to-transparent flex flex-col items-center justify-center p-4 text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight drop-shadow-lg mb-4">
+            💎 {project.title} 💎
+          </h1>
+          <p className="text-xl sm:text-2xl md:text-3xl text-white font-semibold italic drop-shadow-md">
+            {project.tagline}
+          </p>
+        </div>
+      </section>
+
+      {/* Introduction Section */}
+      <section className="container mx-auto px-4 py-12 md:py-16">
+        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-teal-200">
+          <h2 className="text-3xl md:text-4xl font-bold text-teal-800 mb-6 text-center">
+            Introducing a New Era of Seafront Living
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-lg">
+            <div className="flex items-center p-4 bg-cyan-100 rounded-lg shadow-sm">
+              <Home className="text-cyan-600 mr-3 flex-shrink-0" size={28} />
+              <p><span className="font-semibold">{project.overview.acres}</span> integrated development</p>
+            </div>
+            <div className="flex items-center p-4 bg-cyan-100 rounded-lg shadow-sm">
+              <Building className="text-cyan-600 mr-3 flex-shrink-0" size={28} />
+              <p><span className="font-semibold">Suites | Offices | Retail</span></p>
+            </div>
+            <div className="flex items-center p-4 bg-cyan-100 rounded-lg shadow-sm">
+              <MapPin className="text-cyan-600 mr-3 flex-shrink-0" size={28} />
+              <p>{project.overview.location}</p>
+            </div>
+            <div className="flex items-center p-4 bg-cyan-100 rounded-lg shadow-sm">
+              <CheckCircle className="text-cyan-600 mr-3 flex-shrink-0" size={28} />
+              <p>{project.overview.coastalWalkway}</p>
+            </div>
+            <div className="flex items-center p-4 bg-cyan-100 rounded-lg shadow-sm">
+              <DollarSign className="text-cyan-600 mr-3 flex-shrink-0" size={28} />
+              <p><span className="font-semibold">{project.overview.priceRange}</span></p>
+            </div>
+            <div className="flex items-center p-4 bg-cyan-100 rounded-lg shadow-sm">
+              <img
+                src={getImageUrl("WhatsApp Image 2025-07-11 at 17.33.40_e5badb7e.jpg")}
+                alt="Modern Interiors"
+                className="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0"
+                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/40x40/cccccc/000000?text=IMG"; }}
+              />
+              <p><span className="font-semibold">Included:</span> Aircon, water heater, Kitchen cabinets</p>
+            </div>
+          </div>
+          <p className="text-center text-xl mt-8 font-medium text-gray-700 italic">
+            More than a launch — it’s a lifestyle shift.
+          </p>
+          <div className="text-center mt-8">
+            <button
+              onClick={generatePropertyDescription}
+              className="inline-flex items-center bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-300 transform hover:scale-105"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2" size={20} /> Generate Property Description
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Selling Points Section */}
+      <section className="container mx-auto px-4 py-12 md:py-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-teal-800 mb-10">
+          Unrivaled Selling Points & Investment Potential
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {project.sellingPoints.map((point, index) => (
+            <div key={index} className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center border border-teal-200 hover:shadow-xl transition-shadow duration-300">
+              <div className="p-4 bg-orange-100 rounded-full mb-4">
+                <point.icon className="text-orange-600" size={40} />
+              </div>
+              <h3 className="text-xl font-semibold text-orange-800 mb-3">{point.title}</h3>
+              <p className="text-gray-600 leading-relaxed">{point.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Comparison Section */}
+      <section className="container mx-auto px-4 py-12 md:py-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-teal-800 mb-10">
+          Competitive Edge: The V vs. The Market
+        </h2>
+        <div className="overflow-x-auto bg-white rounded-2xl shadow-xl border border-teal-200">
+          <table className="min-w-full divide-y divide-teal-200">
+            <thead className="bg-orange-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider rounded-tl-2xl">
+                  Criteria
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  The V (Proposed)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Jesselton Quay (Completed)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  The Shore (Progressing/Selling)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider rounded-tr-2xl">
+                  Sutera Avenue (Progressing/Selling)
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-teal-200">
+              {project.comparison.map((row, index) => (
+                <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-cyan-50'}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {row.criteria}
+                  </td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-800">
+                    {row.theV}
+                  </td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-800">
+                    {row.jesseltonQuay}
+                  </td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-800">
+                    {row.theShore}
+                  </td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-800">
+                    {row.suteraAvenue}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* Financial Roadmap Section */}
+      <section className="container mx-auto px-4 py-12 md:py-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-teal-800 mb-10">
+          Smart Investment: Positive Cash Flow Potential
+        </h2>
+        <div className="overflow-x-auto bg-white rounded-2xl shadow-xl border border-teal-200">
+          <table className="min-w-full divide-y divide-teal-200">
+            <thead className="bg-orange-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider rounded-tl-2xl">
+                  Unit Type
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Size (sqft)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Est. Selling Price (RM)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  80% Loan (RM)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Monthly Loan Repayment (RM)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Monthly Maint. (RM)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Total Monthly Outgoings (RM)
+                </th>
+                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-orange-600 uppercase tracking-wider" colSpan="2">
+                  Airbnb Rental
+                </th>
+                <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-orange-600 uppercase tracking-wider rounded-tr-2xl" colSpan="2">
+                  Traditional Rental
+                </th>
+              </tr>
+              <tr className="bg-orange-50">
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider"></th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider"></th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider"></th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider"></th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider"></th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider"></th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider"></th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Avg. Daily Rate (RM)
+                </th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Net Monthly (RM)
+                </th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Cash Flow (RM)
+                </th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Monthly Rental (RM)
+                </th>
+                <th scope="col" className="px-6 py-2 text-left text-xs font-medium text-orange-600 uppercase tracking-wider">
+                  Cash Flow (RM)
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-teal-200">
+              {project.financials.map((row, index) => (
+                <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-cyan-50'}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {row.unitType}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {row.size}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {row.estSellingPrice.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {row.loan80Percent.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    ~{row.monthlyLoanRepayment.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {row.monthlyMaintenance.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    ~{row.totalMonthlyOutgoings.toLocaleString()}
+                  </td>
+                  {/* Airbnb Data */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {row.avgDailyAirbnbRate.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    ~{row.projectedNetMonthlyAirbnbRental.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-700">
+                    {row.estimatedPositiveAirbnbCashFlow >= 0 ? '+' : ''}{row.estimatedPositiveAirbnbCashFlow.toLocaleString()}
+                  </td>
+                  {/* Traditional Rental Data */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    ~{row.projectedMonthlyTraditionalRental.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-700">
+                    {row.estimatedPositiveTraditionalCashFlow >= 0 ? '+' : ''}{row.estimatedPositiveTraditionalCashFlow.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="p-6 text-sm text-gray-500 italic">
+            Disclaimer: All figures are estimates based on current market conditions and assumptions (30-year loan, 4.5% interest, 70% Airbnb occupancy, 20% Airbnb management fee, RM0.30 psf maintenance), subject to change. Traditional rental cash flow assumes no significant management fees.
+          </p>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="bg-teal-800 text-white py-12 md:py-16 rounded-t-3xl shadow-inner">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Don't Miss This Investment Opportunity!
+          </h2>
+          <p className="text-xl md:text-2xl mb-8">
+            Secure your prime piece of Likas Bay. Contact us today for an exclusive viewing and detailed financial consultation.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-lg">
+            <a href={`tel:${project.contact.phone}`} className="flex items-center bg-white text-teal-800 px-6 py-3 rounded-full font-semibold shadow-md hover:bg-gray-100 transition-colors duration-300">
+              <Phone className="mr-2" size={20} /> {project.contact.phone}
+            </a>
+            <a href={`mailto:${project.contact.email}`} className="flex items-center bg-white text-teal-800 px-6 py-3 rounded-full font-semibold shadow-md hover:bg-gray-100 transition-colors duration-300">
+              <Mail className="mr-2" size={20} /> {project.contact.email}
+            </a>
+            <a href={project.contact.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center bg-white text-teal-800 px-6 py-3 rounded-full font-semibold shadow-md hover:bg-gray-100 transition-colors duration-300">
+              <Facebook className="mr-2" size={20} /> Facebook Page
+            </a>
+          </div>
+          <p className="mt-8 text-sm text-teal-200">
+            {project.contact.name}
+          </p>
+        </div>
+      </section>
+
+      {/* Description Modal */}
+      {showDescriptionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 md:p-8 max-w-2xl w-full relative">
+            <h3 className="text-2xl font-bold text-teal-800 mb-4 text-center">
+              ✨ AI-Generated Property Description ✨
+            </h3>
+            <div className="max-h-96 overflow-y-auto text-gray-700 text-base leading-relaxed mb-6 p-4 border rounded-lg bg-gray-50">
+              {generatedDescription}
+            </div>
+            <div className="text-center">
+              <button
+                onClick={() => setShowDescriptionModal(false)}
+                className="inline-flex items-center bg-orange-600 text-white font-bold py-2 px-5 rounded-full shadow-md hover:bg-orange-700 transition-colors duration-300"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
