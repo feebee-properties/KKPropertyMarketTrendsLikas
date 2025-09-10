@@ -18,7 +18,7 @@ const App = () => {
       developmentType: "Integrated Development (Suites | Offices | Retail)",
       coastalWalkway: "Direct Access to Sabah’s Iconic 7km Coastal Walkway",
       location: "Prime Seafront Location at Likas Bay",
-      priceRange: "From RM304,000 | RM650 psf", // Updated price
+      priceRange: "From RM276,250 | RM650 psf", // Updated price
     },
     sellingPoints: [
       {
@@ -57,7 +57,7 @@ const App = () => {
       },
       {
         criteria: "Price (RM)",
-        theV: "From RM304,000 (RM650 psf)", // Updated price
+        theV: "From RM276,250 (RM650 psf)", // Updated price
         jesseltonQuay: "RM630k",
         theShore: "RM520k",
         suteraAvenue: "RM600k",
@@ -88,18 +88,18 @@ const App = () => {
       {
         unitType: "Studio",
         size: 425,
-        estSellingPrice: 304000,
-        loan80Percent: 243200,
-        monthlyLoanRepayment: 1230,
+        estSellingPrice: 276250,
+        loan80Percent: 221000,
+        monthlyLoanRepayment: 1118,
         monthlyMaintenance: 127.50,
-        totalMonthlyOutgoings: 1357.50,
+        totalMonthlyOutgoings: 1245.50,
         // Airbnb specific
         avgDailyAirbnbRate: 250,
         projectedNetMonthlyAirbnbRental: 4200,
-        estimatedPositiveAirbnbCashFlow: 4200 - 1357.50,
+        estimatedPositiveAirbnbCashFlow: 4200 - 1245.50,
         // Traditional rental specific (assuming no significant management fee for simplicity)
         projectedMonthlyTraditionalRental: 1300,
-        estimatedPositiveTraditionalCashFlow: 1300 - 1357.50,
+        estimatedPositiveTraditionalCashFlow: 1300 - 1245.50,
       },
       {
         unitType: "1-Bedroom",
@@ -446,14 +446,14 @@ const App = () => {
                     ~{row.projectedNetMonthlyAirbnbRental.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-700">
-                    {row.estimatedPositiveAirbnbCashFlow >= 0 ? '+' : ''}{row.estimatedPositiveAirbnbCashFlow.toLocaleString()}
+                    ~{row.estimatedPositiveAirbnbCashFlow.toLocaleString()}
                   </td>
                   {/* Traditional Rental Data */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                     ~{row.projectedMonthlyTraditionalRental.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-700">
-                    {row.estimatedPositiveTraditionalCashFlow >= 0 ? '+' : ''}{row.estimatedPositiveTraditionalCashFlow.toLocaleString()}
+                    ~{row.estimatedPositiveTraditionalCashFlow.toLocaleString()}
                   </td>
                 </tr>
               ))}
